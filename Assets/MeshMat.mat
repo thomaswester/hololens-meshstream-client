@@ -7,10 +7,10 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: MeshMat
-  m_Shader: {fileID: 4800000, guid: a82e601d90c076c458969fbd127780e6, type: 3}
+  m_Shader: {fileID: 4800000, guid: 46220b99979a5d444907fa22c79861cf, type: 3}
   m_ShaderKeywords: _EMISSION _USEMAINTEX_ON
   m_LightmapFlags: 1
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: 2000
   stringTagMap: {}
   m_SavedProperties:
     serializedVersion: 2
@@ -117,7 +117,7 @@ Material:
       second: 0.02
     - first:
         name: _Shininess
-      second: 0.7
+      second: 1
     - first:
         name: _SmoothnessTextureChannel
       second: 0
@@ -151,7 +151,7 @@ Material:
       second: {r: 1, g: 1, b: 1, a: 1}
     - first:
         name: _Emission
-      second: {r: 0, g: 0, b: 0, a: 0}
+      second: {r: 1, g: 1, b: 1, a: 0}
     - first:
         name: _EmissionColor
       second: {r: 0, g: 0, b: 0, a: 1}

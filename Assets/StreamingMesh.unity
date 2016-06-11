@@ -117,7 +117,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6297c3420d0927a458979bd8eac49a27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefab: {fileID: 1000010510909592, guid: acd0ddfdb7c7f424d801763b632a7e32, type: 2}
+  streamingMeshPlane: {fileID: 1000010510909592, guid: acd0ddfdb7c7f424d801763b632a7e32,
+    type: 2}
 --- !u!4 &211189471
 Transform:
   m_ObjectHideFlags: 0

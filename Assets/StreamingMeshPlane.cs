@@ -18,6 +18,7 @@ public class StreamingMeshPlane : MonoBehaviour {
 
         //create mesh for rendering
         heightFieldMesh = new Mesh();
+        heightFieldMesh.MarkDynamic();
         heightFieldMesh.name = "StreamingMesh";
         mainMeshFilter.mesh = heightFieldMesh;     
     }
@@ -36,8 +37,8 @@ public class StreamingMeshPlane : MonoBehaviour {
         string tag = Encoding.ASCII.GetString(meshData, 0, taglength);
         if (tag != "MESHDATA")
         {
-            Debug.LogError("invalid frame taglength: " + taglength + " tag:" + tag);
-            //return;
+            Debug.LogError("Invalid frame taglength");
+            return;
         }
 
         //get the sizes of the different arrays
@@ -131,7 +132,7 @@ public class StreamingMeshPlane : MonoBehaviour {
             heightFieldMesh.vertices = vertData;
             heightFieldMesh.colors = colorData;
             //heightFieldMesh.uv = meshUVCoords;
-            heightFieldMesh.triangles = triangleData; 
+            heightFieldMesh.triangles = triangleData;            
         }
         catch (Exception ex)
         {

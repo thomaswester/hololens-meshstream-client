@@ -92,8 +92,8 @@ public class Main : MonoBehaviour {
 
 #if !UNITY_EDITOR
         client = new HttpClient();
-        InvokeRepeating("updateStreamingMeshes", 0, 0.1f);
-        InvokeRepeating("getMeshState", 0, 1.0f);
+        InvokeRepeating("updateStreamingMeshes", 0, 0.03f);
+        InvokeRepeating("getMeshState", 0, 3.0f);
 #else
         StartCoroutine(getLatest(new WWW(activeMeshURL)));
 
