@@ -24,6 +24,7 @@ public class ActiveMesh
     public int id;
 
     public bool free;
+    
     public string author;
     public string title;
     public string platform;
@@ -32,6 +33,8 @@ public class ActiveMesh
     public object lastFrameLock = new object();
     private byte[] _lastFrame;
     public bool draw = false;
+    public bool wait = false;
+
     public byte[] lastFrame {
         get
         {
@@ -65,28 +68,16 @@ public class ActiveMesh
     
 }
 
+
 public class Main : MonoBehaviour {
 
     public GameObject streamingMeshPlane;
-
-    //string path = @"C:\Users\thomas\dev\unity\StreamingMesh\MeshData";
-    string debugMeshData = "";
-    FileInfo[] meshDataFiles;
-    int meshDataFilesIndex = 0;
     
-    //CHANGE THIS to where you are running node, note the HL emulator won't connect to localhost.
-    //string latestDataUrl = "http://[ip-address]:8080/mesh/?";
     static string baseURL = "http://172.16.0.115:8080";
     string activeMeshURL = baseURL + "/mesh";
     
-    //GameObject main;
-    //MeshFilter mainMeshFilter;
-    //Mesh heightFieldMesh;
-
     object activeMeshLock = new object();
     List<ActiveMesh> activeMeshes;
-
-
     
 #if !UNITY_EDITOR
     HttpClient client;
@@ -98,30 +89,17 @@ public class Main : MonoBehaviour {
         Debug.Log("Start!");
         
         activeMeshes = new List<ActiveMesh>();
-        
-        //process files from a folder, otherwise download "latest"
-        if (debugMeshData.Length > 0)
-        {
-            meshDataFiles = Directory.GetFiles(debugMeshData).Select(fn => new FileInfo(fn)).
-                                        OrderBy(f => f.CreationTime).ToArray();
-            foreach (FileInfo file in meshDataFiles)
-            {
-                Debug.Log("file " + file.Name);
-            }
-            //InvokeRepeating("readFile", 0, 0.1f);
-        }
-        else
-        {
-            
-#if !UNITY_EDITOR
-            client = new HttpClient();
-            InvokeRepeating("readURL", 0, 0.03f);
-#else
-            StartCoroutine(getLatest(new WWW(activeMeshURL)));
 
-            StartCoroutine(updateMeshes());
+#if !UNITY_EDITOR
+        client = new HttpClient();
+        InvokeRepeating("updateStreamingMeshes", 0, 0.1f);
+        InvokeRepeating("getMeshState", 0, 1.0f);
+#else
+        StartCoroutine(getLatest(new WWW(activeMeshURL)));
+
+        StartCoroutine(updateMeshes());
 #endif
-        }
+       
     }
 
     // Update is called once per frame
@@ -142,33 +120,47 @@ public class Main : MonoBehaviour {
                     {
                         a.planeScript.updateMesh(a.lastFrame);
                     }
-
-                    //processFrame(a.lastFrame, a);
                 }
             }
         }
     }
 
-    void readURL()
+#if !UNITY_EDITOR
+    void getMeshState()
     {
-#if !UNITY_EDITOR
-        readURLAsync();
-#endif
+        getMeshStateAsync();
     }
 
-#if !UNITY_EDITOR
-    private async Task readURLAsync() {
+    private async Task getMeshStateAsync() {
 
-        byte[] raw = await client.GetByteArrayAsync(latestDataUrl);
-        lock (frameLock)
+        string data = await client.GetStringAsync(activeMeshURL);
+        processMeshJSON( data );
+
+        
+    }
+
+    void updateStreamingMeshes()
+    {
+        foreach (ActiveMesh a in activeMeshes)
         {
-            lastframe = new byte[raw.Length];
-            Array.Copy(raw, lastframe, raw.Length);
-            newFrame = true;
-        }
+            if (!a.free && !a.wait)
+            {
+                updateStreamingMeshAsync(a);
+            }
+        }      
     }
-#endif
 
+    private async Task updateStreamingMeshAsync( ActiveMesh a)
+    {
+        a.wait = true;
+        string url = baseURL + "/mesh/" + a.id;
+        byte[] raw = await client.GetByteArrayAsync(url);
+        a.lastFrame = raw;
+        a.wait = false;
+    }
+    
+
+#endif
 
 #if UNITY_EDITOR
     IEnumerator updateMeshes()
@@ -228,23 +220,6 @@ public class Main : MonoBehaviour {
             }
             count++;
         }
-    }
-
-    //read the next file in the folder
-    void readFile()
-    {
-        FileInfo file = meshDataFiles[meshDataFilesIndex];
-        FileStream f = file.Open(FileMode.Open, FileAccess.Read);
-
-        Debug.Log("Read File: " + file.Name);
-
-        byte[] buff = new byte[f.Length];
-        f.Read(buff, 0, buff.Length);
-
-        //processFrame(buff,new Vector3(0,0,0) );
-
-        meshDataFilesIndex++;
-        if (meshDataFilesIndex >= meshDataFiles.Count()) meshDataFilesIndex = 0;
     }
     
 }

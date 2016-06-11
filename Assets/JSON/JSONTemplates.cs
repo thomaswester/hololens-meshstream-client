@@ -15,9 +15,11 @@ public static partial class JSONTemplates {
 	public static JSONObject TOJSON(object obj) {		//For a generic guess
 		if(touched.Add(obj)) {
 			JSONObject result = JSONObject.obj;
-			//Fields
-			FieldInfo[] fieldinfo = obj.GetType().GetFields();
-			foreach(FieldInfo fi in fieldinfo) {
+
+            //Fields
+            //FieldInfo[] fieldinfo = new FieldInfo[10];
+            
+			foreach (FieldInfo fi in obj.GetType().GetFields() ){
 				JSONObject val = JSONObject.nullJO;
 				if(!fi.GetValue(obj).Equals(null)) {
 					MethodInfo info = typeof(JSONTemplates).GetMethod("From" + fi.FieldType.Name);
