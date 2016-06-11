@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Text;
@@ -11,8 +12,62 @@ using System.Net.Http;
 using System.Threading.Tasks;
 #endif
 
+public class ActiveMesh
+{
+    /*
+     * {
+	"free": true,
+	"info": {},
+	"origin": [1, 0, 0]
+    { */
+
+    public int id;
+
+    public bool free;
+    public string author;
+    public string title;
+    public string platform;
+    public Vector3 origin;
+
+    public object lastFrameLock = new object();
+    private byte[] _lastFrame;
+    public bool draw = false;
+    public byte[] lastFrame {
+        get
+        {
+            if (_lastFrame == null) return null;
+
+            byte [] r = new byte[_lastFrame.Length];
+            lock (lastFrameLock) { 
+                _lastFrame.CopyTo(r,0);
+                draw = false;
+            }
+            return r;
+        }
+
+        set
+        {
+            lock (lastFrameLock) { 
+                this._lastFrame = value;
+                draw = true;
+            }
+        }
+    }
+
+    public GameObject plane;
+    public StreamingMeshPlane planeScript;
+    
+    public ActiveMesh()
+    {
+        Debug.Log("Create Mesh");
+        
+    }
+    
+}
 
 public class Main : MonoBehaviour {
+
+    public GameObject streamingMeshPlane;
 
     //string path = @"C:\Users\thomas\dev\unity\StreamingMesh\MeshData";
     string debugMeshData = "";
@@ -20,15 +75,19 @@ public class Main : MonoBehaviour {
     int meshDataFilesIndex = 0;
     
     //CHANGE THIS to where you are running node, note the HL emulator won't connect to localhost.
-    string latestDataUrl = "http://[ip-address]:8080/mesh/?";
+    //string latestDataUrl = "http://[ip-address]:8080/mesh/?";
+    static string baseURL = "http://172.16.0.115:8080";
+    string activeMeshURL = baseURL + "/mesh";
     
-    GameObject main;
-    MeshFilter mainMeshFilter;
-    Mesh heightFieldMesh;
+    //GameObject main;
+    //MeshFilter mainMeshFilter;
+    //Mesh heightFieldMesh;
 
-    object frameLock = new object();
-    byte[] lastframe;
-    bool newFrame = false;
+    object activeMeshLock = new object();
+    List<ActiveMesh> activeMeshes;
+
+
+    
 #if !UNITY_EDITOR
     HttpClient client;
 #endif
@@ -37,15 +96,8 @@ public class Main : MonoBehaviour {
     void Start() {
 
         Debug.Log("Start!");
-
-        //find the object that holds the mesh
-        GameObject main = GameObject.Find("Plane");
-        MeshFilter mainMeshFilter = main.GetComponent<MeshFilter>();
-
-        //create mesh for rendering
-        heightFieldMesh = new Mesh();
-        heightFieldMesh.name = "HoloMesh";
-        mainMeshFilter.mesh = heightFieldMesh;
+        
+        activeMeshes = new List<ActiveMesh>();
         
         //process files from a folder, otherwise download "latest"
         if (debugMeshData.Length > 0)
@@ -65,7 +117,9 @@ public class Main : MonoBehaviour {
             client = new HttpClient();
             InvokeRepeating("readURL", 0, 0.03f);
 #else
-            StartCoroutine(getLatest(new WWW(latestDataUrl)));
+            StartCoroutine(getLatest(new WWW(activeMeshURL)));
+
+            StartCoroutine(updateMeshes());
 #endif
         }
     }
@@ -73,10 +127,25 @@ public class Main : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        if( lastframe != null && newFrame)
+        foreach(ActiveMesh a in activeMeshes)
         {
-            processFrame(lastframe);
-            newFrame = false;         
+            if(!a.free)
+            {
+                if (a.draw)
+                {
+                    if( a.plane == null)
+                    {
+                       a.plane = (GameObject)Instantiate(streamingMeshPlane, a.origin, new Quaternion());
+                       a.planeScript = a.plane.GetComponent<StreamingMeshPlane>();
+                    }
+                    else
+                    {
+                        a.planeScript.updateMesh(a.lastFrame);
+                    }
+
+                    //processFrame(a.lastFrame, a);
+                }
+            }
         }
     }
 
@@ -86,7 +155,6 @@ public class Main : MonoBehaviour {
         readURLAsync();
 #endif
     }
-
 
 #if !UNITY_EDITOR
     private async Task readURLAsync() {
@@ -103,21 +171,64 @@ public class Main : MonoBehaviour {
 
 
 #if UNITY_EDITOR
-    //get the latest frame as fast as you can
+    IEnumerator updateMeshes()
+    {
+        foreach( ActiveMesh a in activeMeshes)
+        {
+            if (!a.free)
+            {
+                StartCoroutine(updateMesh( new WWW(baseURL + "/mesh/" + a.id), a));               
+            }
+        }
+        yield return new WaitForSeconds(0.03F);
+        StartCoroutine(updateMeshes());
+    }
+
+    IEnumerator updateMesh(WWW rev, ActiveMesh a)
+    {
+        yield return rev;
+        a.lastFrame = rev.bytes;
+    }
+
     IEnumerator getLatest( WWW rev)
     {
-        Debug.Log("getLatest!");        
         yield return rev;
-
-        Debug.Log("downloaded!");
-        processFrame(rev.bytes);
-
-        yield return new WaitForSeconds(0.03F);
+        processMeshJSON(rev.text);
+       
+        yield return new WaitForSeconds(1.0F);
 
         //get the next frame
-        StartCoroutine(getLatest(new WWW(latestDataUrl)));
+        StartCoroutine(getLatest(new WWW(activeMeshURL)));
     }
 #endif
+
+    void processMeshJSON( string json)
+    {
+        JSONObject obj = new JSONObject(json);
+        int count = 0;
+        
+        foreach (JSONObject j in obj.list)
+        {
+            ActiveMesh a = null;           
+            a = activeMeshes.FirstOrDefault(item => item.id == count);
+           
+            if (a == null)
+            {
+                Debug.Log("Create new ActiveMesh");
+                a = new ActiveMesh();
+                a.id = count;
+                a.origin = new Vector3(j["origin"][0].n, j["origin"][1].n, j["origin"][2].n);
+                a.free = j["free"].b;
+
+                activeMeshes.Add(a);
+            }
+            else
+            {
+                a.free = j["free"].b;
+            }
+            count++;
+        }
+    }
 
     //read the next file in the folder
     void readFile()
@@ -130,121 +241,10 @@ public class Main : MonoBehaviour {
         byte[] buff = new byte[f.Length];
         f.Read(buff, 0, buff.Length);
 
-        processFrame(buff);
+        //processFrame(buff,new Vector3(0,0,0) );
 
         meshDataFilesIndex++;
         if (meshDataFilesIndex >= meshDataFiles.Count()) meshDataFilesIndex = 0;
     }
-
-    //process data downloaded or from a file
-    void processFrame(byte[] meshData)
-    {
-        Debug.Log("processFrame " + meshData.Count());
-
-        int offset = 0;
-        int taglength = Encoding.ASCII.GetByteCount("MESHDATA");
-        
-        string tag = Encoding.ASCII.GetString(meshData, 0, taglength);
-        if (tag != "MESHDATA")
-        {
-            Debug.LogError("invalid frame taglength: " + taglength + " tag:" + tag);
-            //return;
-        }
-
-        //get the sizes of the different arrays
-        offset = taglength;
-        
-
-        int vertDataCount = BitConverter.ToInt16(meshData, offset);
-        offset += 2;
-
-        int colorDataCount = BitConverter.ToInt16(meshData, offset);
-        offset += 2;
-
-        int faceDataCount = BitConverter.ToInt16(meshData, offset);
-        offset += 2;
-
-        //unused
-        offset += 2;
-
-        Debug.Log("vert:" + vertDataCount + " color:" + colorDataCount + " triangles:" + faceDataCount);
-
-        /*
-            Vertex position data:
-            Type:  32 bit float
-            Count: Vertex count x 3
-        */
-
-        int arraylen = vertDataCount * 3 * 4;
-        Vector3[] vertData = new Vector3[vertDataCount];
-
-        int index = 0;
-        for (int i = 0; i < arraylen; i += 12)
-        {
-            Vector3 v = new Vector3();
-            v.x = BitConverter.ToSingle(meshData, offset + i);
-            v.y = BitConverter.ToSingle(meshData, offset + i + 4);
-            v.z = BitConverter.ToSingle(meshData, offset + i + 8);
-
-            vertData[index] = v;
-            index++;
-        }
-        offset += arraylen;
-
-
-        /*
-            Color data:
-            Type:     Unsigned bytes
-            Count:    Color count x 3 
-            Comments: Colors are stored in 8 bits per channel, R G B, R G B, R G B ... 
-        */
-
-        arraylen = colorDataCount * 3;
-        Color[] colorData = new Color[colorDataCount];
-        index = 0;
-        for (int i = 0; i < arraylen; i += 3)
-        {
-            
-            float r = (int)meshData[offset + i] / 255.0f;
-            float g = (int)meshData[offset + i + 1] / 255.0f;
-            float b = (int)meshData[offset + i + 2] / 255.0f;
-
-            colorData[index] = new Color(r, g, b);
-            index++;
-        }
-        offset += arraylen;
-
-
-        /*
-            Triangle data:
-            Type:     Unsigned 16 bit integers
-            Count:    Number of triangles x 3 (three vertex indices per triangle)
-            Comments: These numbers index into the vertex array
-         */
-
-        arraylen = faceDataCount * 3 * 2;
-        int[] triangleData = new int[faceDataCount * 3];
-        
-        index = 0;
-        for (int i = 0; i < arraylen; i += 2)
-        {
-            triangleData[index] = BitConverter.ToInt16(meshData, offset + i);
-            index++;
-        }
-        offset += arraylen;
-
-        heightFieldMesh.Clear();
-
-        try
-        {
-            heightFieldMesh.vertices = vertData;
-            heightFieldMesh.colors = colorData;
-            //heightFieldMesh.uv = meshUVCoords;
-            heightFieldMesh.triangles = triangleData; 
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError("error updating mesh");
-        }
-    }
+    
 }

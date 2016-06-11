@@ -161,8 +161,7 @@ QualitySettings:
     particleRaycastBudget: 4096
     asyncUploadTimeSlice: 2
     asyncUploadBufferSize: 4
-    excludedTargetPlatforms:
-    - Standalone
+    excludedTargetPlatforms: []
   m_PerPlatformDefaultQuality:
     Android: 2
     Nintendo 3DS: 5
@@ -171,7 +170,7 @@ QualitySettings:
     PSM: 5
     PSP2: 2
     Samsung TV: 2
-    Standalone: 5
+    Standalone: 0
     Tizen: 2
     Web: 5
     WebGL: 3
