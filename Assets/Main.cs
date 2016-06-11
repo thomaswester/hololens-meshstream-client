@@ -7,6 +7,11 @@ using System.IO;
 using System.Text;
 using System.Net;
 
+using UnityEngine.VR.WSA.Persistence;
+using UnityEngine.VR.WSA.Input;
+using UnityEngine.VR.WSA;
+
+
 #if !UNITY_EDITOR
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -71,24 +76,34 @@ public class ActiveMesh
 
 public class Main : MonoBehaviour {
 
+
     public GameObject streamingMeshPlane;
-    
+
+    GestureRecognizer recognizer;
+
     static string baseURL = "http://172.16.0.115:8080";
     string activeMeshURL = baseURL + "/mesh";
     
     object activeMeshLock = new object();
     List<ActiveMesh> activeMeshes;
     
+
 #if !UNITY_EDITOR
     HttpClient client;
 #endif
 
     // Use this for initialization
-    void Start() {
+    void Awake() {
 
-        Debug.Log("Start!");
-        
+        Debug.Log("Awake!");        
         activeMeshes = new List<ActiveMesh>();
+
+        recognizer = new GestureRecognizer();
+        recognizer.SetRecognizableGestures(GestureSettings.Tap);
+        recognizer.TappedEvent += Recognizer_TappedEvent;
+
+        recognizer.StartCapturingGestures();
+        
 
 #if !UNITY_EDITOR
         client = new HttpClient();
@@ -96,10 +111,41 @@ public class Main : MonoBehaviour {
         InvokeRepeating("getMeshState", 0, 3.0f);
 #else
         StartCoroutine(getLatest(new WWW(activeMeshURL)));
-
         StartCoroutine(updateMeshes());
 #endif
        
+    }
+
+    private void Recognizer_TappedEvent(InteractionSourceKind source, int tapCount, Ray headRay)
+    {
+        Debug.Log("tapped");
+
+        // Figure out which hologram is focused this frame.
+        GameObject focusedObject;
+
+        // Do a raycast into the world based on the user's
+        // head position and orientation.
+        var headPosition = Camera.main.transform.position;
+        var gazeDirection = Camera.main.transform.forward;
+
+        RaycastHit hitInfo;
+        if (Physics.Raycast(headPosition, gazeDirection, out hitInfo))
+        {
+            // If the raycast hit a hologram, use that as the focused object.
+            focusedObject = hitInfo.collider.gameObject;
+            StreamingMeshPlane plane = focusedObject.GetComponent<StreamingMeshPlane>();
+            if (plane != null) {
+                plane.Place();
+                Debug.Log("focusedObject is" + plane.ObjectAnchorStoreName);
+            }
+        }
+        else
+        {
+            // If the raycast did not hit a hologram, clear the focused object.
+            focusedObject = null;
+            Debug.Log("focusedObject is null" );
+        }
+        
     }
 
     // Update is called once per frame
@@ -115,6 +161,7 @@ public class Main : MonoBehaviour {
                     {
                        a.plane = (GameObject)Instantiate(streamingMeshPlane, a.origin, new Quaternion());
                        a.planeScript = a.plane.GetComponent<StreamingMeshPlane>();
+                        a.planeScript.ObjectAnchorStoreName = "mesh " +a.id;
                     }
                     else
                     {

@@ -23,6 +23,7 @@ GameObject:
   - 64: {fileID: 64000013365547896}
   - 23: {fileID: 23000010117233998}
   - 114: {fileID: 114000012847874834}
+  - 64: {fileID: 64000013099550532}
   m_Layer: 0
   m_Name: StreamingMeshPlane
   m_TagString: Untagged
@@ -78,6 +79,18 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000010510909592}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!64 &64000013099550532
+MeshCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000010510909592}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Convex: 0
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!64 &64000013365547896
 MeshCollider:
   m_ObjectHideFlags: 1
@@ -101,3 +114,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc9a5a38055b74f4382c7287a47ed11f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ObjectAnchorStoreName: 
