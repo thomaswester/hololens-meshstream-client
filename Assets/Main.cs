@@ -159,8 +159,9 @@ public class Main : MonoBehaviour {
                 {
                     if( a.plane == null)
                     {
-                       a.plane = (GameObject)Instantiate(streamingMeshPlane, a.origin, new Quaternion());
-                       a.planeScript = a.plane.GetComponent<StreamingMeshPlane>();
+                        a.plane = (GameObject)Instantiate(streamingMeshPlane, a.origin, new Quaternion());
+                        
+                        a.planeScript = a.plane.GetComponent<StreamingMeshPlane>();
                         a.planeScript.ObjectAnchorStoreName = "mesh " +a.id;
                     }
                     else
@@ -168,6 +169,10 @@ public class Main : MonoBehaviour {
                         a.planeScript.updateMesh(a.lastFrame);
                     }
                 }
+            }
+            else
+            {
+                a.planeScript.clear();
             }
         }
     }
