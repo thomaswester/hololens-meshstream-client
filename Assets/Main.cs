@@ -81,7 +81,7 @@ public class Main : MonoBehaviour {
 
     GestureRecognizer recognizer;
 
-    static string baseURL = "http://172.16.0.115:8080";
+    static string baseURL = "http://172.16.0.133:8080";
     string activeMeshURL = baseURL + "/mesh";
     
     object activeMeshLock = new object();
@@ -172,7 +172,10 @@ public class Main : MonoBehaviour {
             }
             else
             {
-                a.planeScript.clear();
+                if (a.plane != null)
+                {
+                    a.planeScript.clear();
+                }
             }
         }
     }

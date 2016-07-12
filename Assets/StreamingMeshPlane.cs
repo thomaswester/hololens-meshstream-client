@@ -14,7 +14,8 @@ using UnityEngine.VR.WSA;
 public class StreamingMeshPlane : MonoBehaviour {
 
     Mesh heightFieldMesh;
-    //MeshCollider meshColider;
+    MeshRenderer meshRenderer;
+    BoxCollider collider; 
 
     public string ObjectAnchorStoreName;
 
@@ -36,15 +37,14 @@ public class StreamingMeshPlane : MonoBehaviour {
         heightFieldMesh.name = "StreamingMesh";
         mainMeshFilter.mesh = heightFieldMesh;
 
-        //meshColider = GetComponent(typeof(MeshCollider)) as MeshCollider;
-        //meshColider.sharedMesh = heightFieldMesh;
+        meshRenderer = GetComponent<MeshRenderer>();
+        collider = GetComponent<BoxCollider>();
 
-        
-        txt = Instantiate(Resources.Load("TextMesh"), transform.position, transform.rotation) as GameObject;
-        txt.transform.parent = this.transform;
+        //txt = Instantiate(Resources.Load("TextMesh"), transform.position, transform.rotation) as GameObject;
+        //txt.transform.parent = this.transform;
 
-        TextMesh txtMesh = txt.GetComponent<TextMesh>();
-        txtMesh.text = ObjectAnchorStoreName;        
+        //TextMesh txtMesh = txt.GetComponent<TextMesh>();
+        //txtMesh.text = ObjectAnchorStoreName;        
     }
     
     void AnchorStoreReady(WorldAnchorStore store)
@@ -71,10 +71,19 @@ public class StreamingMeshPlane : MonoBehaviour {
 
         if (Placing)
         {
-
             gameObject.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 2;
-            gameObject.transform.LookAt(Camera.main.transform);
+
+            Vector3 targetPostition = new Vector3(Camera.main.transform.position.x,
+                                       this.transform.position.y,
+                                       Camera.main.transform.position.z);
+
+            gameObject.transform.LookAt(targetPostition);
         }
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log("collide!");
     }
 
     public void Place()
@@ -119,6 +128,8 @@ public class StreamingMeshPlane : MonoBehaviour {
                     break;
                 }
             }
+
+            gameObject.transform.rotation = Quaternion.identity;
         }
 
         Placing = !Placing;
@@ -239,7 +250,6 @@ public class StreamingMeshPlane : MonoBehaviour {
         offset += arraylen;
         
         heightFieldMesh.Clear();
-        //meshColider.sharedMesh.Clear();
 
         try
         {
@@ -249,48 +259,14 @@ public class StreamingMeshPlane : MonoBehaviour {
             heightFieldMesh.triangles = triangleData;
 
             heightFieldMesh.RecalculateBounds();
+            
+            collider.center = meshRenderer.bounds.center - transform.position;
+            collider.size = heightFieldMesh.bounds.size;
 
-            //meshColider.sharedMesh = heightFieldMesh;
-            //meshColider.sharedMesh.RecalculateBounds();
-
-            FitColliderToChildren(gameObject);
         }
         catch (Exception ex)
         {
             Debug.LogError("error updating mesh");
-        }
-    }
-
-    private void FitColliderToChildren(GameObject parentObject)
-    {
-        BoxCollider bc = parentObject.GetComponent<BoxCollider>();
-        if (bc == null) {
-            bc = parentObject.AddComponent<BoxCollider>();
-        }
-        Bounds bounds = new Bounds(Vector3.zero, Vector3.zero);
-        bool hasBounds = false;
-        Renderer[] renderers = parentObject.GetComponentsInChildren<Renderer>();
-        foreach (Renderer render in renderers)
-        {
-            if (hasBounds)
-            {
-                bounds.Encapsulate(render.bounds);
-            }
-            else
-            {
-                bounds = render.bounds;
-                hasBounds = true;
-            }
-        }
-        if (hasBounds)
-        {
-            bc.center = bounds.center - parentObject.transform.position;
-            bc.size = bounds.size;
-        }
-        else
-        {
-            bc.size = bc.center = Vector3.zero;
-            bc.size = Vector3.zero;
         }
     }
 }

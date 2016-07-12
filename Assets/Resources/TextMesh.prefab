@@ -21,6 +21,7 @@ GameObject:
   - 4: {fileID: 4000012242944704}
   - 23: {fileID: 23000010125601606}
   - 102: {fileID: 102000010958619436}
+  - 114: {fileID: 114000011703126272}
   m_Layer: 0
   m_Name: TextMesh
   m_TagString: Untagged
@@ -36,7 +37,7 @@ Transform:
   m_GameObject: {fileID: 1000014005256654}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
+  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -83,10 +84,21 @@ TextMesh:
   m_Anchor: 0
   m_Alignment: 0
   m_TabSize: 4
-  m_FontSize: 0
+  m_FontSize: 100
   m_FontStyle: 1
   m_RichText: 0
   m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
   m_Color:
     serializedVersion: 2
     rgba: 4291151301
+--- !u!114 &114000011703126272
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000014005256654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8ef4ff3954226e468c953dadd669340, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

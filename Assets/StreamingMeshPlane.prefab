@@ -22,7 +22,6 @@ GameObject:
   - 33: {fileID: 33000010716379030}
   - 23: {fileID: 23000010117233998}
   - 114: {fileID: 114000012847874834}
-  - 64: {fileID: 64000012887724880}
   - 65: {fileID: 65000014189130988}
   m_Layer: 0
   m_Name: StreamingMeshPlane
@@ -65,18 +64,6 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000010510909592}
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!64 &64000012887724880
-MeshCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1000010510909592}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Convex: 0
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!65 &65000014189130988
 BoxCollider:
