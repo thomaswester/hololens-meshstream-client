@@ -26,15 +26,15 @@ public class ActiveMesh
 	"origin": [1, 0, 0]
     { */
 
+    //"slot" data
     public int id;
-
-    public bool free;
-    
+    public bool free;    
     public string author;
     public string title;
     public string platform;
     public Vector3 origin;
 
+    //store last frame async
     public object lastFrameLock = new object();
     private byte[] _lastFrame;
     public bool draw = false;
@@ -81,7 +81,9 @@ public class Main : MonoBehaviour {
 
     GestureRecognizer recognizer;
 
-    static string baseURL = "http://172.16.0.133:8080";
+    //static string baseURL = "http://172.16.0.133:8080";
+    static string baseURL = "http://127.0.0.1:8080";
+    //static string baseURL = "http://192.168.0.23:8080";
     string activeMeshURL = baseURL + "/mesh";
     
     object activeMeshLock = new object();
@@ -155,8 +157,10 @@ public class Main : MonoBehaviour {
         {
             if(!a.free)
             {
+                //slot is occupied draw it
                 if (a.draw)
                 {
+                    //new data is available draw
                     if( a.plane == null)
                     {
                         a.plane = (GameObject)Instantiate(streamingMeshPlane, a.origin, new Quaternion());
@@ -172,6 +176,7 @@ public class Main : MonoBehaviour {
             }
             else
             {
+                //clear if freed
                 if (a.plane != null)
                 {
                     a.planeScript.clear();

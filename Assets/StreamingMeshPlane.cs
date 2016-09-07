@@ -15,7 +15,7 @@ public class StreamingMeshPlane : MonoBehaviour {
 
     Mesh heightFieldMesh;
     MeshRenderer meshRenderer;
-    BoxCollider collider; 
+    BoxCollider bCollider; 
 
     public string ObjectAnchorStoreName;
 
@@ -38,7 +38,7 @@ public class StreamingMeshPlane : MonoBehaviour {
         mainMeshFilter.mesh = heightFieldMesh;
 
         meshRenderer = GetComponent<MeshRenderer>();
-        collider = GetComponent<BoxCollider>();
+        bCollider = GetComponent<BoxCollider>();
 
         //txt = Instantiate(Resources.Load("TextMesh"), transform.position, transform.rotation) as GameObject;
         //txt.transform.parent = this.transform;
@@ -59,7 +59,7 @@ public class StreamingMeshPlane : MonoBehaviour {
             Debug.Log(ids[index]);
             if (ids[index] == ObjectAnchorStoreName)
             {
-                WorldAnchor wa = anchorStore.Load(ids[index], gameObject);
+                //WorldAnchor wa = anchorStore.Load(ids[index], gameObject);
                 Placing = false;
                 break;
             }
@@ -259,14 +259,15 @@ public class StreamingMeshPlane : MonoBehaviour {
             heightFieldMesh.triangles = triangleData;
 
             heightFieldMesh.RecalculateBounds();
-            
-            collider.center = meshRenderer.bounds.center - transform.position;
-            collider.size = heightFieldMesh.bounds.size;
+            heightFieldMesh.RecalculateNormals();
+
+            bCollider.center = meshRenderer.bounds.center - transform.position;
+            bCollider.size = heightFieldMesh.bounds.size;
 
         }
         catch (Exception ex)
         {
-            Debug.LogError("error updating mesh");
+            Debug.LogError("error updating mesh " + ex.Message);
         }
     }
 }

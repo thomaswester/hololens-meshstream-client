@@ -7,10 +7,10 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: MeshMat
-  m_Shader: {fileID: 4800000, guid: 46220b99979a5d444907fa22c79861cf, type: 3}
-  m_ShaderKeywords: _EMISSION _USEMAINTEX_ON
+  m_Shader: {fileID: 4800000, guid: a11f85f75af7a8540a7b79d78af45382, type: 3}
+  m_ShaderKeywords: _EMISSION _VERTEXCOLOR
   m_LightmapFlags: 1
-  m_CustomRenderQueue: 2000
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   m_SavedProperties:
     serializedVersion: 2
@@ -75,10 +75,19 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - first:
+        name: _SpecGlossMap
+      second:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - first:
         name: _BumpScale
       second: 1
+    - first:
+        name: _ColorMask
+      second: 15
     - first:
         name: _ColorWriteMask
       second: 15
@@ -95,13 +104,19 @@ Material:
         name: _DstBlend
       second: 0
     - first:
+        name: _Gloss
+      second: 0.5
+    - first:
         name: _GlossMapScale
       second: 1
     - first:
         name: _Glossiness
-      second: 0.5
+      second: 0
     - first:
         name: _GlossyReflections
+      second: 1
+    - first:
+        name: _IntensityVC
       second: 1
     - first:
         name: _Metallic
@@ -122,13 +137,34 @@ Material:
         name: _SmoothnessTextureChannel
       second: 0
     - first:
+        name: _Specular
+      second: 0.5
+    - first:
         name: _SpecularHighlights
       second: 1
     - first:
         name: _SrcBlend
       second: 1
     - first:
+        name: _Stencil
+      second: 0
+    - first:
+        name: _StencilComp
+      second: 8
+    - first:
+        name: _StencilOp
+      second: 0
+    - first:
+        name: _StencilReadMask
+      second: 255
+    - first:
+        name: _StencilWriteMask
+      second: 255
+    - first:
         name: _UVSec
+      second: 0
+    - first:
+        name: _UseBumpMap
       second: 0
     - first:
         name: _UseColor
@@ -138,13 +174,13 @@ Material:
       second: 0
     - first:
         name: _UseMainTex
-      second: 1
+      second: 0
     - first:
         name: _ZTest
-      second: 4
+      second: 8
     - first:
         name: _ZWrite
-      second: 1
+      second: 0
     m_Colors:
     - first:
         name: _Color
