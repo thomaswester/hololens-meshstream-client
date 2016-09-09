@@ -47,6 +47,10 @@ Shader "Custom/StandardVertex" {
              o.Alpha = c.a;
          }
          ENDCG
+
+		 Pass{
+			 Cull Off
+		 }
      } 
      FallBack "Diffuse"
  }

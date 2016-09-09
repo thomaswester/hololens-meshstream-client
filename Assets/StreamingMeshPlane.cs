@@ -183,7 +183,7 @@ public class StreamingMeshPlane : MonoBehaviour {
         //unused
         offset += 2;
 
-        //Debug.Log("vert:" + vertDataCount + " color:" + colorDataCount + " triangles:" + faceDataCount);
+        Debug.Log("vert:" + vertDataCount + " color:" + colorDataCount + " triangles:" + faceDataCount);
 
         /*
             Vertex position data:
