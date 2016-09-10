@@ -8,13 +8,15 @@ Shader "Custom/StandardVertex" {
      SubShader {
          Tags { "RenderType"="Opaque" "PerformanceChecks" = "False" }
          LOD 100
-         
+         Cull Off
+
          CGPROGRAM
          #pragma surface surf Standard vertex:vert fullforwardshadows
          #pragma target 5.0
 		 
          struct Input {
              float2 uv_MainTex;
+             fixed facing : VFACE;
              float3 vertexColor; // Vertex color stored here by vert() method
          };
          
@@ -45,12 +47,10 @@ Shader "Custom/StandardVertex" {
 			 o.Metallic = _Metallic;
              o.Smoothness = _Glossiness;
              o.Alpha = c.a;
+
          }
          ENDCG
 
-		 Pass{
-			 Cull Off
-		 }
      } 
      FallBack "Diffuse"
  }

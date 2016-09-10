@@ -23,6 +23,7 @@ public class StreamingMeshPlane : MonoBehaviour {
     bool Placing = false;
 
     GameObject txt;
+    TextMesh txtField;
 
     // Use this for initialization
     void Start () {
@@ -40,11 +41,11 @@ public class StreamingMeshPlane : MonoBehaviour {
         meshRenderer = GetComponent<MeshRenderer>();
         bCollider = GetComponent<BoxCollider>();
 
-        //txt = Instantiate(Resources.Load("TextMesh"), transform.position, transform.rotation) as GameObject;
-        //txt.transform.parent = this.transform;
+        txt = Instantiate(Resources.Load("TextMesh"), transform.position + (Vector3.up *0.5f), transform.rotation) as GameObject;
+        txt.transform.parent = this.transform;
 
-        //TextMesh txtMesh = txt.GetComponent<TextMesh>();
-        //txtMesh.text = ObjectAnchorStoreName;        
+        txtField = txt.GetComponent<TextMesh>();
+        txtField.text = ObjectAnchorStoreName;        
     }
     
     void AnchorStoreReady(WorldAnchorStore store)
@@ -152,8 +153,12 @@ public class StreamingMeshPlane : MonoBehaviour {
     }
 
     //update the dynamic mesh
-    public void updateMesh( byte[] meshData)
-    { 
+    public void updateMesh( ActiveMesh a)
+    {
+        txtField.text = a.author + "\r\n" + a.title;
+        
+        byte[] meshData = a.lastFrame;
+
         int offset = 0;
         if(meshData == null) return;
         if(meshData.Length < 5) return;

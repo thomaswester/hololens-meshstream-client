@@ -81,8 +81,8 @@ public class Main : MonoBehaviour {
 
     GestureRecognizer recognizer;
 
-    //static string baseURL = "http://172.16.0.133:8080";
-    static string baseURL = "http://127.0.0.1:8080";
+    static string baseURL = "http://172.16.0.133:8080";
+    //static string baseURL = "http://127.0.0.1:8080";
     //static string baseURL = "http://192.168.0.23:8080";
     string activeMeshURL = baseURL + "/mesh";
     
@@ -170,7 +170,7 @@ public class Main : MonoBehaviour {
                     }
                     else
                     {
-                        a.planeScript.updateMesh(a.lastFrame);
+                        a.planeScript.updateMesh(a);
                     }
                 }
             }
@@ -268,6 +268,8 @@ public class Main : MonoBehaviour {
             {
                 Debug.Log("Create new ActiveMesh");
                 a = new ActiveMesh();
+                if (j["info"]["title"] != null) a.title = j["info"]["title"].ToString(true);
+                if (j["info"]["author"] != null) a.author = j["info"]["author"].ToString(true);
                 a.id = count;
                 a.origin = new Vector3(j["origin"][0].n, j["origin"][1].n, j["origin"][2].n);
                 a.free = j["free"].b;
@@ -276,6 +278,9 @@ public class Main : MonoBehaviour {
             }
             else
             {
+                if (j["info"]["title"] != null) a.title = j["info"]["title"].ToString(true);
+                if (j["info"]["author"] != null) a.author = j["info"]["author"].ToString(true);
+
                 a.free = j["free"].b;
             }
             count++;

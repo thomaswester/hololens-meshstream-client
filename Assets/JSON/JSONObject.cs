@@ -898,7 +898,8 @@ public class JSONObject {
 				builder.Append(str);
 				break;
 			case Type.STRING:
-				builder.AppendFormat("\"{0}\"", str);
+                if( pretty ) builder.AppendFormat("{0}", str);
+                else builder.AppendFormat("\"{0}\"", str);
 				break;
 			case Type.NUMBER:
 				if(useInt) {
