@@ -83,7 +83,7 @@ public class Main : MonoBehaviour {
 
     //it's a hack
     static string getMeshUrl() {
-        return Main.instance.nodeServerURL + "/mesh";
+        return "http://" + Main.instance.nodeServerURL + "/mesh";
     }
 
     static string ipConfigURL = "http://www.dropbox.com/s/gth4sax66ezbvo9/config.json?dl=1";
@@ -220,6 +220,7 @@ public class Main : MonoBehaviour {
 
     private async Task getMeshStateAsync() {
 
+        Debug.Log("Main.getMeshUrl() " + Main.getMeshUrl());
         string data = await client.GetStringAsync( Main.getMeshUrl() );
         processMeshJSON( data );
 
