@@ -81,14 +81,20 @@ public class Main : MonoBehaviour {
 
     GestureRecognizer recognizer;
 
-    static string baseURL = "http://172.16.0.133:8080";
+    //it's a hack
+    static string getMeshUrl() {
+        return Main.instance.nodeServerURL + "/mesh";
+    }
+
+    static string ipConfigURL = "http://www.dropbox.com/s/gth4sax66ezbvo9/config.json?dl=1";
     //static string baseURL = "http://127.0.0.1:8080";
     //static string baseURL = "http://192.168.0.23:8080";
-    string activeMeshURL = baseURL + "/mesh";
-    
+
+    string nodeServerURL;
     object activeMeshLock = new object();
     List<ActiveMesh> activeMeshes;
     
+    public static Main instance;
 
 #if !UNITY_EDITOR
     HttpClient client;
@@ -96,6 +102,8 @@ public class Main : MonoBehaviour {
 
     // Use this for initialization
     void Awake() {
+
+        instance = this;
 
         Debug.Log("Awake!");        
         activeMeshes = new List<ActiveMesh>();
@@ -105,17 +113,36 @@ public class Main : MonoBehaviour {
         recognizer.TappedEvent += Recognizer_TappedEvent;
 
         recognizer.StartCapturingGestures();
+
+
+        StartCoroutine( getServerIp(new WWW(ipConfigURL)) );
+
+    }
+
+    IEnumerator getServerIp( WWW ipConfigURL)
+    {
+        yield return ipConfigURL;
         
+        JSONObject obj = new JSONObject(ipConfigURL.text);
+        nodeServerURL = obj["ipAddress"].ToString( true );
+
+        Debug.Log("Connect to: " + nodeServerURL );
+        startListening();
+    }
+
+    private void startListening()
+    {
 
 #if !UNITY_EDITOR
         client = new HttpClient();
         InvokeRepeating("updateStreamingMeshes", 0, 0.03f);
         InvokeRepeating("getMeshState", 0, 3.0f);
 #else
-        StartCoroutine(getLatest(new WWW(activeMeshURL)));
+        Debug.Log("Using url :" + Main.getMeshUrl() );
+        StartCoroutine(getLatest(new WWW(Main.getMeshUrl() ) ) );
         StartCoroutine(updateMeshes());
 #endif
-       
+
     }
 
     private void Recognizer_TappedEvent(InteractionSourceKind source, int tapCount, Ray headRay)
@@ -193,7 +220,7 @@ public class Main : MonoBehaviour {
 
     private async Task getMeshStateAsync() {
 
-        string data = await client.GetStringAsync(activeMeshURL);
+        string data = await client.GetStringAsync( Main.getMeshUrl() );
         processMeshJSON( data );
 
         
@@ -213,7 +240,7 @@ public class Main : MonoBehaviour {
     private async Task updateStreamingMeshAsync( ActiveMesh a)
     {
         a.wait = true;
-        string url = baseURL + "/mesh/" + a.id;
+        string url = Main.getMeshUrl() + "/" + a.id;
         byte[] raw = await client.GetByteArrayAsync(url);
         a.lastFrame = raw;
         a.wait = false;
@@ -229,7 +256,7 @@ public class Main : MonoBehaviour {
         {
             if (!a.free)
             {
-                StartCoroutine(updateMesh( new WWW(baseURL + "/mesh/" + a.id), a));               
+                StartCoroutine(updateMesh( new WWW(Main.getMeshUrl() + "/" + a.id), a));               
             }
         }
         yield return new WaitForSeconds(0.03F);
@@ -250,7 +277,7 @@ public class Main : MonoBehaviour {
         yield return new WaitForSeconds(1.0F);
 
         //get the next frame
-        StartCoroutine(getLatest(new WWW(activeMeshURL)));
+        StartCoroutine(getLatest(new WWW(Main.getMeshUrl() )));
     }
 #endif
 
