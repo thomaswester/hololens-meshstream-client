@@ -10,8 +10,8 @@ PlayerSettings:
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: PDX Creative Coders
-  productName: StreamingMesh
+  companyName: Thomas Wester
+  productName: Mesh Streamer
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenStyle: 0
@@ -344,14 +344,14 @@ PlayerSettings:
   psmSplashimage: {fileID: 0}
   spritePackerPolicy: 
   scriptingDefineSymbols: {}
-  metroPackageName: HoloToolkit-Unity
-  metroPackageVersion: 1.0.0.0
+  metroPackageName: MeshStreamer
+  metroPackageVersion: 0.0.1.0
   metroCertificatePath: Assets\WSATestCertificate.pfx
   metroCertificatePassword: 
   metroCertificateSubject: DefaultCompany
   metroCertificateIssuer: DefaultCompany
   metroCertificateNotAfter: 801f358e46bed201
-  metroApplicationDescription: HoloToolkit-Unity
+  metroApplicationDescription: Holograms made easy for creative coders
   wsaImages: {}
   metroTileShortName: StreamingMesh
   metroCommandLineArgsFile: 
